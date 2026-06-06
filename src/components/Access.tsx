@@ -5,15 +5,32 @@ import Countdown from "./Countdown";
 // Set once the waitlist is meaningful (500+). Below that, leave null to hide.
 const WAITLIST_COUNT: number | null = null;
 
+// Google Apps Script web app endpoint that appends signups to the sheet.
+const WAITLIST_ENDPOINT =
+  "https://script.google.com/macros/s/AKfycbyRhU-RHwGf5SxyIK59T3KxX5-gx71iPbaCMpRJawUdsVdPtJN6E0u9CfAquLKFdBizCg/exec";
+
 export default function Access() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email) return;
-    // TODO: wire to a real waitlist endpoint at integration time.
-    setSubmitted(true);
+    if (!email || status === "loading") return;
+    setStatus("loading");
+    try {
+      await fetch(WAITLIST_ENDPOINT, {
+        method: "POST",
+        // Apps Script doesn't send CORS headers; no-cors lets the request
+        // through (response is opaque, which is fine for fire-and-forget).
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ email, source: "landing" }),
+      });
+      setSubmitted(true);
+    } catch {
+      setStatus("error");
+    }
   }
 
   return (
@@ -50,11 +67,17 @@ export default function Access() {
             />
             <button
               type="submit"
-              className="h-14 shrink-0 rounded-xl bg-purple-700 px-7 text-base font-semibold text-white shadow-[0_10px_40px_-12px_rgba(77,40,232,0.9)] transition-all duration-300 hover:bg-purple-600 active:scale-[0.98]"
+              disabled={status === "loading"}
+              className="h-14 shrink-0 rounded-xl bg-purple-700 px-7 text-base font-semibold text-white shadow-[0_10px_40px_-12px_rgba(77,40,232,0.9)] transition-all duration-300 hover:bg-purple-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Get Early Access
+              {status === "loading" ? "Joining…" : "Get Early Access"}
             </button>
           </form>
+        )}
+        {status === "error" && !submitted && (
+          <p className="mt-3 text-sm text-error">
+            Something went wrong. Please try again.
+          </p>
         )}
       </div>
 

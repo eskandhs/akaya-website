@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# TypeScript build cache
+tsconfig.tsbuildinfo
+
+# Editor / OS junk
+.DS_Store
+*.log
+
+# Local env files
+.env
+.env.local
+.env.*.local
+
+# Claude local files
+.claude/

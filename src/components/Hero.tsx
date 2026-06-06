@@ -46,7 +46,7 @@ export default function Hero() {
       </div>
 
       <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center">
-        <Wordmark className="mb-8 text-sm" />
+        <Wordmark className="mb-8 h-[53px] sm:h-[58px]" />
 
         <h1 className="text-balance text-[2.75rem] font-bold leading-[1.05] tracking-tight text-white sm:text-6xl md:text-[4.5rem]">
           ask a real question. get a real answer. with a date

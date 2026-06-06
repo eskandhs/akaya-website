@@ -2,11 +2,11 @@ import type { ReactNode } from "react";
 
 export function Wordmark({ className = "" }: { className?: string }) {
   return (
-    <span
-      className={`inline-block font-semibold uppercase tracking-[0.42em] text-purple-500 ${className}`}
-    >
-      Akaya
-    </span>
+    <img
+      src="/Logo.png"
+      alt="Akaya"
+      className={`inline-block w-auto ${className}`}
+    />
   );
 }
 

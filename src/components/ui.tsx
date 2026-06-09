@@ -1,15 +1,5 @@
 import type { ReactNode } from "react";
 
-export function Wordmark({ className = "" }: { className?: string }) {
-  return (
-    <img
-      src="/Logo.png"
-      alt="Akaya"
-      className={`inline-block w-auto ${className}`}
-    />
-  );
-}
-
 export function CTAButton({
   children,
   className = "",

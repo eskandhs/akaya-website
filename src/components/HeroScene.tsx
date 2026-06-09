@@ -3,18 +3,22 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Icosahedron, MeshDistortMaterial, Float } from "@react-three/drei";
 import * as THREE from "three";
 
-function CoreGeometry() {
+function CoreGeometry({ show }: { show: boolean }) {
   const group = useRef<THREE.Group>(null);
+  const appear = useRef(0);
 
   useFrame((_, delta) => {
-    if (group.current) {
-      group.current.rotation.y += delta * 0.12;
-      group.current.rotation.x += delta * 0.04;
-    }
+    if (!group.current) return;
+    group.current.rotation.y += delta * 0.12;
+    group.current.rotation.x += delta * 0.04;
+    // Grow the core in only once the content is revealed.
+    const target = show ? 1 : 0;
+    appear.current += (target - appear.current) * Math.min(1, delta * 4);
+    group.current.scale.setScalar(appear.current);
   });
 
   return (
-    <group ref={group}>
+    <group ref={group} scale={0}>
       {/* Solid distorted core */}
       <Icosahedron args={[1.0, 6]}>
         <MeshDistortMaterial
@@ -40,8 +44,11 @@ function CoreGeometry() {
   );
 }
 
-function DataField() {
+function DataField({ revealed }: { revealed: boolean }) {
   const ref = useRef<THREE.Points>(null);
+  const mat = useRef<THREE.PointsMaterial>(null);
+  const appear = useRef(0);
+  const opacity = useRef(0);
 
   const positions = useMemo(() => {
     const count = 900;
@@ -59,11 +66,19 @@ function DataField() {
   }, []);
 
   useFrame((_, delta) => {
-    if (ref.current) ref.current.rotation.y -= delta * 0.03;
+    if (!ref.current) return;
+    ref.current.rotation.y -= delta * 0.03;
+    // Subtle scale-up entrance.
+    appear.current += (1 - appear.current) * Math.min(1, delta * 1.2);
+    ref.current.scale.setScalar(0.85 + 0.15 * appear.current);
+    // Hold at 50% opacity during the intro, rise to full when revealed.
+    const target = revealed ? 0.9 : 0.5;
+    opacity.current += (target - opacity.current) * Math.min(1, delta * 1.5);
+    if (mat.current) mat.current.opacity = opacity.current;
   });
 
   return (
-    <points ref={ref}>
+    <points ref={ref} scale={0.85}>
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
@@ -71,18 +86,19 @@ function DataField() {
         />
       </bufferGeometry>
       <pointsMaterial
+        ref={mat}
         color="#a594ff"
         size={0.045}
         sizeAttenuation
         transparent
-        opacity={0.9}
+        opacity={0}
         depthWrite={false}
       />
     </points>
   );
 }
 
-export default function HeroScene() {
+export default function HeroScene({ revealed }: { revealed: boolean }) {
   return (
     <Canvas
       camera={{ position: [0, 0, 8], fov: 45 }}
@@ -94,9 +110,9 @@ export default function HeroScene() {
       <directionalLight position={[5, 5, 5]} intensity={1.5} color="#8066ff" />
       <pointLight position={[-6, -2, -4]} intensity={1.8} color="#6644ee" />
       <Float speed={1.1} rotationIntensity={0.4} floatIntensity={0.7}>
-        <CoreGeometry />
+        <CoreGeometry show={revealed} />
       </Float>
-      <DataField />
+      <DataField revealed={revealed} />
       <fog attach="fog" args={["#000000", 6, 13]} />
     </Canvas>
   );

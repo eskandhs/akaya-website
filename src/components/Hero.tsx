@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useState } from "react";
-import { Wordmark, CTAButton } from "./ui";
+import { CTAButton } from "./ui";
 import Countdown from "./Countdown";
 
 const HeroScene = lazy(() => import("./HeroScene"));
@@ -25,11 +25,11 @@ function useEnable3D() {
   return enabled;
 }
 
-export default function Hero() {
+export default function Hero({ revealed }: { revealed: boolean }) {
   const enable3D = useEnable3D();
 
   return (
-    <section className="relative flex min-h-[100svh] w-full flex-col items-center justify-center overflow-hidden px-6 text-center">
+    <section className="relative flex min-h-[100svh] w-full flex-col items-center justify-center overflow-hidden px-6 pt-[24vh] text-center">
       {/* 3D backdrop or static fallback */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-bg" />
@@ -37,7 +37,7 @@ export default function Hero() {
         {enable3D && (
           <div className="absolute inset-0">
             <Suspense fallback={null}>
-              <HeroScene />
+              <HeroScene revealed={revealed} />
             </Suspense>
           </div>
         )}
@@ -45,9 +45,11 @@ export default function Hero() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_62%_55%_at_50%_44%,rgba(0,0,0,0.68),rgba(0,0,0,0.3)_50%,rgba(0,0,0,0.92)_100%)]" />
       </div>
 
-      <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center">
-        <Wordmark className="mb-8 h-[53px] sm:h-[58px]" />
-
+      <div
+        className={`relative z-10 mx-auto flex max-w-3xl flex-col items-center transition-all duration-1000 ease-out ${
+          revealed ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0"
+        }`}
+      >
         <h1 className="text-balance text-[2.75rem] font-bold leading-[1.05] tracking-tight text-white sm:text-6xl md:text-[4.5rem]">
           ask a real question. get a real answer. with a date
         </h1>

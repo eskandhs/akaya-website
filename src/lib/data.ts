@@ -43,14 +43,6 @@ export const SECONDARY_CONVERSATIONS: Conversation[] = [
   },
 ];
 
-export const ENGINE_BADGES = [
-  "Swiss Ephemeris",
-  "Parashari System",
-  "27 Nakshatras",
-  "Vimshottari Dasha",
-  "5,000 Years Empirical",
-];
-
 export const QUESTIONS = [
   "Should I take this job?",
   "When will the financial pressure ease?",
